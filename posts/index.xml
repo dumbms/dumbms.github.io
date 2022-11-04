@@ -4,7 +4,7 @@
         <link>http://example.org/posts/</link>
         <description>所有文章 | tiolog</description>
         <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><managingEditor>xxx@xx.cn (tio)</managingEditor>
-            <webMaster>xxx@xx.cn (tio)</webMaster><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Sun, 23 Oct 2022 20:31:36 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>xxx@xx.cn (tio)</webMaster><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Tue, 01 Nov 2022 22:52:09 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
     <title>主题文档 - 内容</title>
     <link>http://example.org/theme-documentation-content/</link>
     <pubDate>Thu, 05 Mar 2020 16:30:05 &#43;0800</pubDate>

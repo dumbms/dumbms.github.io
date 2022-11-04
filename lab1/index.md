@@ -3,21 +3,23 @@
 
 <!--more-->
 
-[Lab 1: PC Bootstrap and GCC Calling Conventions ](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/)
+[实验地址 Lab 1: PC Bootstrap and GCC Calling Conventions ](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/)
 
 
 
-## 0 Introduction
+## 1 Introduction
 
 实验分成三部分。第一部分集中于熟悉X86汇编语言、 QEMU x86仿真器和 PC 的开机引导程序。第二部分检查6.828内核的引导加载程序，它位于lab的`boot` 目录中。最后，第三部分将深入研究6.828内核本身的初始模板--- JOS，位于内核目录中。
 
-### Software Setup
+### 1.1 Software Setup
 
 环境：推荐使用 docker搭建Ubuntu18.04 或 20.04 
 
 
 
-linux环境搭建：[docker 搭建纯净版Linux](https://www.jianshu.com/p/46cb844273ca)   小问题：缺少git安装（apt install git）、实验环境没有与本地挂载，但影响不大
+linux环境搭建：[docker 搭建纯净版Linux](https://www.jianshu.com/p/46cb844273ca)   
+
+qemu环境配置参考： [MIT6.828/install.md](https://github.com/woai3c/MIT6.828/blob/master/docs/install.md)
 
 ```shell
 mkdir ~/6.828
@@ -27,23 +29,23 @@ git clone https://github.com/mit-pdos/6.828-qemu.git qemu
 cd lab
 ```
 
-qemu环境配置参考： [MIT6.828/install.md](https://github.com/woai3c/MIT6.828/blob/master/docs/install.md)
 
 
 
-## Part 1: PC Bootstrap
+
+## 2 PC Bootstrap
 
 介绍x86汇编语言和PC引导程序（PC Bootstrap），并开始使用QEMU和QEMU/GDB调试
 
-### 1.1 Getting Started with x86 assembly
+### 2.1 Getting Started with x86 assembly
 
 建议在继续lab2之前，熟悉一下x86汇编。
 
 
 
-[Inline Assembly with DJGPP](http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html)，实验参考资料；
+[Inline Assembly with DJGPP](http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html)，实验参考资料
 
-[80386 Programmer's Reference Manual](https://pdos.csail.mit.edu/6.828/2018/readings/i386/toc.htm)，80386手册后续实验需参考；
+[80386 Programmer's Reference Manual](https://pdos.csail.mit.edu/6.828/2018/readings/i386/toc.htm)，80386手册后续实验需参考
 
 {{<admonition success "推荐资料"  >}}
 
@@ -81,13 +83,13 @@ BIOS的操作就是在控制，初始化，检测各种底层的设备，比如�
 
 {{< /admonition >}}
 
-可参考[bootloader总结](#jump-bootloader)
+可参考[bootloader总结](#jump-bootloader)。
 
 
 
 ---
 
-## Part 2: The Boot Loader
+## 2 The Boot Loader
 
 [boot.S & main.c 做了什么可参考该博客 3. The Boot Loader](https://www.cnblogs.com/JayL-zxl/p/14908346.html)
 
@@ -101,62 +103,13 @@ BIOS的操作就是在控制，初始化，检测各种底层的设备，比如�
 
 
 
-#### Exercise 4.
+#### Exercise 4
 
 
 
-考察对C指针的掌握程度，如果没有C编译器的话，可下个[Dev-C++ for Windows  ](https://sourceforge.net/projects/embarcadero-devcpp/)简单的跑一下程序
+考察对C指针的掌握程度，简单的跑一下该程序 [pointers.c](https://pdos.csail.mit.edu/6.828/2018/labs/lab1/pointers.c)。
 
-```c
-#include <stdio.h>
-#include <stdlib.h>
-void
-f(void)
-{
-    int a[4];
-    int *b = malloc(16);
-    int *c;
-    int i;
-
-    printf("1: a = %p, b = %p, c = %p\n", a, b, c);
-
-    c = a;
-    for (i = 0; i < 4; i++)
-	a[i] = 100 + i;
-    c[0] = 200;
-    printf("2: a[0] = %d, a[1] = %d, a[2] = %d, a[3] = %d\n",
-	   a[0], a[1], a[2], a[3]);
-
-    c[1] = 300;
-    *(c + 2) = 301;
-    3[c] = 302;
-    printf("3: a[0] = %d, a[1] = %d, a[2] = %d, a[3] = %d\n",
-	   a[0], a[1], a[2], a[3]);
-
-    c = c + 1;
-    *c = 400;
-    printf("4: a[0] = %d, a[1] = %d, a[2] = %d, a[3] = %d\n",
-	   a[0], a[1], a[2], a[3]);
-
-    c = (int *) ((char *) c + 1);
-    *c = 500;
-    printf("5: a[0] = %d, a[1] = %d, a[2] = %d, a[3] = %d\n",
-	   a[0], a[1], a[2], a[3]);
-
-    b = (int *) a + 1;
-    c = (int *) ((char *) a + 1);
-    printf("6: a = %p, b = %p, c = %p\n", a, b, c);
-}
-
-int
-main(int ac, char **av)
-{
-    f();
-    return 0;
-}
-```
-
-结果是否想象的一样呢，当然这里的地址是不同的
+结果是否想象的一样呢，当然这里的地址是不同的，我是在windows下用Dev-c++ 跑的。
 
 ```
 a = 000000000062FDC0, b = 0000000000C61400, c = 0000000000000001
@@ -169,13 +122,13 @@ a = 000000000062FDC0, b = 000000000062FDC4, c = 000000000062FDC1
 
 ---
 
-#### Exercise 5.
+#### Exercise 5
 
 
 
 将`boot/Makefrag`中BIOS 将引导扇区的链接地址改为0x7C01，执行`make clean` `make` 
 
-```
+```makefile
 $(OBJDIR)/boot/boot: $(BOOT_OBJS)
 	@echo + ld boot/boot
 	$(V)$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C01 -o $@.out $^
@@ -192,21 +145,21 @@ $(OBJDIR)/boot/boot: $(BOOT_OBJS)
 
 
 
-#### Exercise 6.
+#### Exercise 6
 
 <div align=center><img src = "assets/image-20221026153009412.png" height="10%" width= "70%"></div>
 
 
 
-## Part 3: The Kernel
+## 3 The Kernel
 
-#### **Exercise 7.** 
+#### **Exercise 7**
 
 
 
-注释掉`mov %eax,%cr0` ，b *0x100025：
+注释掉`mov %eax,%cr0` ，b *0x100025；
 
-```
+```shell
 (gdb) x/8x 0x00100000
 0x100000:	0x1badb002	0x00000000	0xe4524ffe	0x7205c766
 0x100010:	0x34000004	0x7000b812	0x220f0011	0xc0200fd8
@@ -231,15 +184,15 @@ $(OBJDIR)/boot/boot: $(BOOT_OBJS)
 在entry.S中
 
 ```assembly
-	# Turn on paging.
-	movl	%cr0, %eax
-	orl	$(CR0_PE|CR0_PG|CR0_WP), %eax
-	movl	%eax, %cr0
+# Turn on paging.
+movl	%cr0, %eax
+orl	$(CR0_PE|CR0_PG|CR0_WP), %eax
+movl	%eax, %cr0
 ```
 
 这段汇编就是将%cr0 寄存器设置为CR0_PE|CR0_PG|CR0_WP；开启分页后，mmu硬件通过cr3找到页目录地址才有用；
 
-```
+```c
 // Control Register flags
 #define CR0_PE		0x00000001	// Protection Enable
 #define CR0_MP		0x00000002	// Monitor coProcessor
@@ -256,7 +209,7 @@ $(OBJDIR)/boot/boot: $(BOOT_OBJS)
 
 在entry.S中可以看到，之后他尝试执行的指令是：
 
-```
+```assembly
 mov	$relocated, %eax
 jmp	*%eax
 ```
@@ -269,9 +222,9 @@ jmp	*%eax
 
 
 
-#### Exercise8
+#### Exercise 8
 
-在 `printfmt.c` 中，参考一下上下文代码，修改一下
+在 `printfmt.c` 中，参考一下上下文代码，修改一下。
 
 ```
 		case 'o':
@@ -285,17 +238,21 @@ jmp	*%eax
 			goto number;
 ```
 
-修改完之后重新`make`就能显示"6828 decimal is 15254 octal!"
+修改完之后重新`make`就能显示"6828 decimal is 15254 octal!"。
 
-问题解答参考 [exercise 8](https://123xzy.github.io/2019/03/14/MIT-6-828-Lab-Booting-a-PC/) ，最重要的一个问题是参数压栈是从右往左压栈的，这样函数调用后使用栈中元素从下往上，就能模拟函数参数从左往右的顺序
+问题解答参考 [exercise 8](https://123xzy.github.io/2019/03/14/MIT-6-828-Lab-Booting-a-PC/) ，最重要的一个问题是参数压栈是从右往左压栈的，这样函数调用后使用栈中元素从下往上，就能模拟函数参数从左往右的顺序。
 
-### The Stack
+### 3.2 The Stack
 
 函数调用时栈做的事情，理解这个图很重要，可参考csapp中文版 p164。
 
-<div align=center><img src = "assets/call.stack.jpg" height="10%" width= "70%"></div>
+<div align=center>{{< image src="assets/call.stack.jpg" caption="函数调用过程中的栈内容的变化" >}}</div>	
+
+
 
 #### Exercise 11
+
+实现指定的回溯函数，需要知道在函数调用过程中，栈、栈帧、栈底指针(ebp)、栈顶指针(esp)如何变化的，参考上图。
 
 ```c
 int
@@ -318,7 +275,7 @@ mon_backtrace(int argc, char **argv, struct Trapframe *tf)
 
 执行结果如下
 
-```shell
+```kernel
 6828 decimal is 15254 octal!
 entering test_backtrace 5
 entering test_backtrace 4
@@ -348,7 +305,7 @@ K>
 
 #### Exercise12
 
-在`kern/kdebug.c`
+在`kern/kdebug.c`中。
 
 ```c
 stab_binsearch(stabs, &lline, &rline, N_SLINE, addr);
@@ -359,7 +316,7 @@ if (lline <= rline) {
 }
 ```
 
-在`kern/monitor.c`
+在`kern/monitor.c`中。
 
 ```c
 int
@@ -409,11 +366,11 @@ kern/entry.S:83: <unknown>+0
 
 
 
-## 总结
+## 4 总结
 
 ### bootloader
 
-<span id="jump-bootloader">简而言之</span>：PC加电后，首先会找到BIOS并获取PC的控制权，BIOS做的就是寻找可引导的磁盘`bootloader`，将其导入0x7c00处，然后将控制权交给`bootloader`  也就是boot.S & main.c，boot.S主要是从8086/8088实模式进入保护模式、设置GDT表、为main.c函数设置栈然后跳到main.c，main.c 中会加载ELF可执行文件（这里即操作系统内核），然后通过一个tricky的方法将ELF->entry，即内核的入口转为函数指针同时调用
+<span id="jump-bootloader">简而言之</span>：PC加电后，首先会找到BIOS并获取PC的控制权，BIOS做的就是寻找可引导的磁盘`bootloader`，将其导入0x7c00处，然后将控制权交给`bootloader`  也就是boot.S & main.c，boot.S主要是从8086/8088实模式进入保护模式、设置GDT表、为main.c函数设置栈然后跳到main.c，main.c 中会加载ELF可执行文件（这里即操作系统内核），然后将ELF->entry 转为函数指针并调用，即内核的入口转为函数指针同时调用，最终进入内核(内核部分从entry.S开始)
 
 ```c
 ((void (*)(void)) (ELFHDR->e_entry))();
@@ -431,7 +388,7 @@ PC启动后的运行顺序为 BIOS --> boot loader --> 操作系统内核
 
 ### entry.S
 
-进入内核后，将`entry_pgdir.c`中手写的`entry_pgdir`页表载入到页表寄存器CR3中，这样mmu硬件就有了自动转化虚拟地址 -> 物理地址的能力仅限于当前页表中的转换，并打开分页；并为进入内核第一个c函数设置栈帧，包括栈基地址`ebp`和栈顶地址`esp`，这样就能实现函数的调用；
+进入内核后，将`entry_pgdir.c`中手写的`entry_pgdir`页表地址载入到页表寄存器CR3中，这样mmu硬件就有了自动转化虚拟地址 -> 物理地址的能力仅限于当前页表中的转换，并打开分页；并为进入内核第一个c函数设置栈帧，包括栈基地址`ebp`和栈顶地址`esp`，这样就能实现函数的调用，最终进入内核的c函数部分，终于告别了PC启动汇编做的事情😄，后面的lab也是关注从 `i386_init` c函数开始做的事情；
 
 ```assembly
 movl	$0x0,%ebp			# nuke frame pointer
@@ -449,15 +406,29 @@ call	i386_init
 $
 ```
 
+----
 
-
-总的来说PC启动这一环节只需要知道它做了哪些非常重要的事情，其他细节了解即可，我们并不需要将重点放在细枝末节上，重点内容为stack
+Lab 1重点内容为熟悉PC启动过程做了哪些重要的事、熟悉gdb、x86汇编、函数调用过程中栈的变化，而前两个part部分内容没有score test，这部分要看掌握的熟不熟练可以参考CSAPP 第三章 & `bomblab`。
 
 ---
 
-可参考blog：
+可参考：
+
+[xv6 中文文档](https://xv6-chinese.readthedocs.io/zh/latest/index.html)
 
  [Lab1 Pims的博客](https://phimos.github.io/2020/02/28/6828-lab1/)
 
 [Lab1 缘生故如幻](https://jiyou.github.io/blog/2018/04/15/mit.6.828/jos-lab1/)
+
+
+
+{{<admonition tip "重要的事说三遍"  >}}
+
+通关CSAPP‘s BOMBLAB 可以快速通关本节 **PART I** && **PART II**
+
+通关CSAPP‘s BOMBLAB 可以快速通关本节 **PART I** && **PART II**
+
+通关CSAPP‘s BOMBLAB 可以快速通关本节 **PART I** && **PART II**
+
+{{< /admonition >}}
 
